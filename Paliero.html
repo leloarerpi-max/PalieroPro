@@ -1,0 +1,510 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Paliero</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA3MCA3MCIgd2lkdGg9IjcwIiBoZWlnaHQ9IjcwIiByb2xlPSJpbWciIGFyaWEtbGFiZWw9IlBhbGllcm8iPgogIDx0aXRsZT5QYWxpZXJvPC90aXRsZT4KICA8cmVjdCB4PSIwIiB5PSIwIiB3aWR0aD0iNzAiIGhlaWdodD0iNzAiIHJ4PSIxOCIgZmlsbD0iIzEyMTYzQiIvPgogIDxyZWN0IHg9IjE0IiB5PSI0NiIgd2lkdGg9IjEyIiBoZWlnaHQ9IjEyIiByeD0iMiIgZmlsbD0iIzMzNDdEQiIvPgogICAgPHJlY3QgeD0iMjkiIHk9IjMzIiB3aWR0aD0iMTIiIGhlaWdodD0iMjUiIHJ4PSIyIiBmaWxsPSIjNUU2NDg2Ii8+CiAgICA8cmVjdCB4PSI0NCIgeT0iMjAiIHdpZHRoPSIxMiIgaGVpZ2h0PSIzOCIgcng9IjIiIGZpbGw9IiNFOEEwMkEiLz4KPC9zdmc+Cg==">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Schibsted+Grotesk:wght@400;500;600;700&display=swap">
+<style>
+/* Concept : l'escalier. Bandeau sombre qui porte les chiffres clés (le seul gros parti pris), puis un plan de travail clair :
+   paliers sous forme de marches, graphiques, tableau. Capital = cobalt, intérêts = ambre, partout. */
+:root{
+  --bg:#EEF1F6; --surface:#FFFFFF; --ink:#12163B; --muted:#5E6486; --line:#DFE3EE; --line-strong:#C6CCDD;
+  --field:#F5F7FC; --field-line:#CBD2E6; --logo-plate:transparent;
+  --cap:#3347DB; --cap-soft:#E4E8FC; --int:#E8A02A; --int-soft:#FCEFD6;
+  --ok:#14804A; --warn:#C0302A; --warn-bg:#FDECEA;
+  --hero:#12163B; --hero-ink:#F4F5FF; --hero-muted:#A9AFD6; --hero-line:#2A3070;
+  --shadow:0 1px 2px rgba(18,22,59,.05),0 8px 24px -12px rgba(18,22,59,.12);
+  --sans:"Schibsted Grotesk",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0B0E24; --surface:#121631; --ink:#E8EAFB; --muted:#9298BE; --line:#222850; --line-strong:#323A6B;
+  --field:#0E1229; --field-line:#303869; --logo-plate:#EEF1F6;
+  --cap:#7D8CFF; --cap-soft:#1D2457; --int:#F2B04A; --int-soft:#3A2D12;
+  --ok:#5FD495; --warn:#FF8A82; --warn-bg:#3A1620;
+  --hero:#171C4A; --hero-ink:#F4F5FF; --hero-muted:#A9AFD6; --hero-line:#2E3580;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px -12px rgba(0,0,0,.5);color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0B0E24; --surface:#121631; --ink:#E8EAFB; --muted:#9298BE; --line:#222850; --line-strong:#323A6B;
+  --field:#0E1229; --field-line:#303869; --logo-plate:#EEF1F6;
+  --cap:#7D8CFF; --cap-soft:#1D2457; --int:#F2B04A; --int-soft:#3A2D12;
+  --ok:#5FD495; --warn:#FF8A82; --warn-bg:#3A1620;
+  --hero:#171C4A; --hero-ink:#F4F5FF; --hero-muted:#A9AFD6; --hero-line:#2E3580;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px -12px rgba(0,0,0,.5);color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 var(--sans);padding-inline:16px;padding-block:16px 56px}
+button{font:inherit;color:inherit}
+.wrap{max-width:1240px;margin-inline:auto;display:flex;flex-direction:column;gap:20px}
+.mono,.v,dd,input.in,td.c{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+/* en-tête */
+.logo{display:block;height:58px;width:auto;max-width:100%;background:var(--logo-plate);border-radius:12px;padding:0 6px 0 0}
+.head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
+h1{margin:0 0 6px;line-height:0}
+.sub{margin:0;color:var(--muted)}
+.theme{background:var(--surface);border:1px solid var(--line-strong);color:var(--ink);border-radius:8px;padding:7px 12px;font-size:13px;cursor:pointer;white-space:nowrap}
+.theme:hover{border-color:var(--cap);color:var(--cap)}
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.kpi{display:flex;flex-direction:column;gap:2px;min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;box-shadow:var(--shadow)}
+.kpi .l{font-size:12.5px;color:var(--muted)}
+.kpi .v{font-size:clamp(18px,2vw,22px);font-weight:600;overflow-wrap:anywhere}
+.kpi.big .v{color:var(--cap)}
+.kpi .s{font-size:12px;color:var(--muted)}
+
+/* grille */
+.layout{display:grid;grid-template-columns:330px minmax(0,1fr);gap:20px;align-items:start}
+.aside{display:flex;flex-direction:column;gap:20px;position:sticky;top:16px}
+.main{display:flex;flex-direction:column;gap:20px;min-width:0}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px 20px;box-shadow:var(--shadow);min-width:0}
+.card>header,.sec>header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+h2{font-size:16px;font-weight:650;letter-spacing:-.01em;margin:0}
+.hint{color:var(--muted);font-size:13px;margin:2px 0 0}
+
+/* champs */
+.fields{display:grid;grid-template-columns:minmax(0,1fr);gap:14px}.fld{min-width:0}
+.fld label,.lab{display:block;font-size:12.5px;font-weight:550;color:var(--muted);margin-bottom:5px}
+.box{position:relative}
+input.in,select.in{width:100%;min-width:0;font-size:14px;padding:9px 12px;border:1px solid var(--field-line);background:var(--field);color:var(--ink);border-radius:8px}
+input.in{text-align:right;padding-right:42px}
+select.in{font-family:var(--sans);appearance:auto}
+input[type=date].in{font-family:var(--mono);text-align:left;padding:9px 8px;font-size:13px}
+.box i{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-style:normal;color:var(--muted);font-size:12px;pointer-events:none}
+input.in::placeholder{color:var(--line-strong)}
+:is(input,select,button,a):focus-visible{outline:2px solid var(--cap);outline-offset:2px}
+input.in:focus{border-color:var(--cap)}
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+.btn{font-size:13px;font-weight:550;padding:8px 14px;border-radius:8px;border:1px solid var(--line-strong);background:var(--surface);cursor:pointer}
+.btn:hover:not(:disabled){border-color:var(--cap);color:var(--cap)}
+.btn.p{background:var(--cap);border-color:var(--cap);color:#fff}.btn.p:hover:not(:disabled){color:#fff;filter:brightness(1.08)}
+:root[data-theme="dark"] .btn.p,:root:not([data-theme="light"]) .btn.p{color:#0B0E24}
+.btn:disabled{opacity:.4;cursor:default}
+.link{background:none;border:0;padding:0;color:var(--cap);font-weight:550;cursor:pointer;font-size:13px}
+
+/* calculateur de durée */
+.dres{margin-top:14px;background:var(--field);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:16px 16px 14px}
+.dres .big{font-size:40px;font-weight:700;line-height:1;letter-spacing:-.03em;font-family:var(--mono)}
+.dres .unit{font-size:15px;font-weight:600;margin-left:8px}
+.dres p{margin:8px 0 0;font-size:13px;color:var(--muted)}
+.derr{margin-top:14px;background:var(--warn-bg);color:var(--warn);border-radius:10px;padding:10px 12px;font-weight:600;font-size:13px}
+.dapply{margin-top:12px;width:100%}
+.dfb{margin-top:8px;font-size:12.5px;min-height:1em;color:var(--ok)}.dfb.err{color:var(--warn);font-weight:600}
+.dnote{margin:10px 2px 0;font-size:12.5px;color:var(--muted)}
+/* contrôles */
+.checks{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.checks li{display:grid;grid-template-columns:18px minmax(0,1fr);gap:8px;font-size:13px;line-height:1.35}
+.checks .m{font-weight:700}.ok{color:var(--ok)}.bad{color:var(--warn)}.inf{color:var(--int)}
+.checks small{display:block;color:var(--muted);font-size:12px}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:650;padding:3px 10px;border-radius:99px;border:1px solid currentColor}
+.pill.bad{background:var(--warn-bg)}
+
+/* marches (paliers) */
+.steps{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:14px}
+.step{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 16px 14px;display:flex;flex-direction:column;gap:12px;box-shadow:var(--shadow);min-width:0}
+.step.warn{border-color:var(--warn)}
+.step>header{display:flex;align-items:center;gap:10px}
+.badge{flex:none;width:30px;height:30px;border-radius:8px;background:var(--cap);color:#fff;display:grid;place-items:center;font:600 13px var(--mono)}
+:root[data-theme="dark"] .badge,:root:not([data-theme="light"]) .badge{color:#0B0E24}
+.step h3{margin:0;font-size:15px;font-weight:650;line-height:1.2}
+.range{font-size:12px;color:var(--muted);font-family:var(--mono)}
+.step .grow{flex:1;min-width:0}
+.x{flex:none;width:30px;height:30px;border-radius:8px;border:1px solid var(--line);background:transparent;color:var(--muted);cursor:pointer;font-size:17px;line-height:1}
+.x:hover:not(:disabled){color:var(--warn);border-color:var(--warn)}.x:disabled{opacity:.3;cursor:default}
+.ins{display:grid;grid-template-columns:1fr 1.25fr 1.25fr;gap:8px}
+.ins input.in{font-size:13px;padding:8px 26px 8px 8px}
+.ins .box i{right:8px}
+.ins .fld:first-child input.in{padding-right:38px}
+.ins .lab{font-size:11.5px;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.out{display:flex;flex-direction:column;gap:10px;border-top:1px dashed var(--line-strong);padding-top:12px}
+.pay .l{font-size:12px;color:var(--muted);display:block}
+.pay .v{font-size:26px;font-weight:600;letter-spacing:-.02em;line-height:1.15}
+.share{display:flex;height:6px;border-radius:99px;overflow:hidden;background:var(--line)}
+.share span:first-child{background:var(--cap)}.share span:last-child{background:var(--int)}
+dl{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:0}
+dt{font-size:11.5px;color:var(--muted)}dd{margin:0;font-size:12.5px;overflow-wrap:anywhere}
+.msg{margin:0;font-size:12.5px;color:var(--muted);min-height:1.4em}
+.msg.warn{color:var(--warn);font-weight:600}
+.add{border:1.5px dashed var(--line-strong);background:transparent;border-radius:12px;min-height:150px;color:var(--muted);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;font-weight:550}
+.add:hover:not(:disabled){border-color:var(--cap);color:var(--cap)}.add:disabled{opacity:.4;cursor:default}
+.add b{font-size:24px;font-weight:400;line-height:1}
+.note{color:var(--muted);font-size:13px;margin:14px 0 0;max-width:80ch}
+
+/* graphiques */
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12.5px;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px}
+.cw{position:relative}
+.chart{width:100%;height:auto;display:block;touch-action:pan-y}
+.chart text{font-family:var(--mono);font-size:10.5px;fill:var(--muted)}
+.chart .grid{stroke:var(--line);stroke-width:1}.chart .axis{stroke:var(--line-strong)}
+.chart .a-cap{fill:var(--cap);fill-opacity:.9}.chart .a-int{fill:var(--int);fill-opacity:.95}
+.chart .l-cap{fill:none;stroke:var(--cap);stroke-width:2.2;stroke-linejoin:round}
+.chart .a-crd{fill:var(--cap-soft)}
+.chart .sep{stroke:var(--surface);stroke-width:2}
+.chart .sep2{stroke:var(--line-strong);stroke-dasharray:3 4}
+.chart text.pl{fill:var(--ink);font-weight:600}
+.chart .dot{fill:var(--surface);stroke:var(--cap);stroke-width:2.2}
+.chart .cross{stroke:var(--ink);stroke-width:1;opacity:.5}
+.tip{position:absolute;pointer-events:none;background:var(--ink);color:var(--surface);border-radius:8px;padding:8px 10px;font-size:12px;line-height:1.55;white-space:nowrap;z-index:3;box-shadow:var(--shadow)}
+.tip b{font-family:var(--sans);font-weight:650}.tip span{font-family:var(--mono)}
+.empty{color:var(--muted);padding:34px 0;text-align:center}
+
+/* tableau */
+.seg{display:inline-flex;border:1px solid var(--line-strong);border-radius:8px;overflow:hidden}
+.seg button{background:transparent;border:0;padding:7px 14px;font-size:13px;font-weight:550;cursor:pointer;color:var(--muted)}
+.seg button[aria-pressed=true]{background:var(--cap);color:#fff}
+:root[data-theme="dark"] .seg button[aria-pressed=true],:root:not([data-theme="light"]) .seg button[aria-pressed=true]{color:#0B0E24}
+.scroll{overflow:auto;border:1px solid var(--line);border-radius:10px;max-height:540px}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th{position:sticky;top:0;z-index:1;background:var(--field);text-align:right;font-weight:600;font-size:12px;color:var(--muted);padding:10px 12px;border-bottom:1px solid var(--line-strong);white-space:nowrap}
+td{padding:7px 12px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+th.l,td.l{text-align:left}td.n{color:var(--muted);text-align:left;font-family:var(--mono)}
+tr.alt td{background:color-mix(in srgb,var(--cap-soft) 45%,transparent)}
+tr.end td{border-bottom:1.5px solid var(--cap);font-weight:600}
+tr.tot td{font-weight:700;background:var(--field)}
+.toast{color:var(--ok);font-size:13px;min-height:1.2em;margin-top:8px}
+
+
+/* tableau de saisie des paliers */
+.tools{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.chk{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:var(--muted);cursor:pointer}
+.chk input{width:16px;height:16px;accent-color:var(--cap)}
+.tp{max-height:none}
+#tpal th{position:static}
+#tpal th.in-h{color:var(--int)}
+#tpal th{padding:8px 4px;line-height:1.25;white-space:normal;vertical-align:bottom}
+#tpal{font-size:12.5px}
+#tpal th.res-h{color:var(--cap);background:var(--cap-soft)}
+#tpal td{padding:6px 4px;vertical-align:middle}
+#tpal td.n{width:44px;padding-inline:4px}
+#tpal td[data-c=Pl],#tpal td[data-c=Pm]{color:var(--muted)}
+#tpal .badge{display:inline-grid;width:28px;height:28px;font-size:12px}
+#tpal td.cin input.in{min-width:68px;max-width:92px;padding:8px 8px;font-size:13px}
+#tpal td.pay{background:var(--cap-soft);font-family:var(--mono);font-weight:600;font-size:15px;color:var(--ink)}
+#tpal td.msg{text-align:left;white-space:normal;min-width:84px;font-size:12.5px;color:var(--muted)}
+#tpal td.msg.okc{color:var(--ok);font-weight:700;text-align:center}
+#tpal td.msg.warn{color:var(--warn);font-weight:600}
+#tpal tr.blank .badge{background:var(--field);color:var(--muted);border:1px solid var(--line)}
+#tpal.adv-off .advc{display:none}
+@media (max-width:960px){.layout{grid-template-columns:minmax(0,1fr)}.aside{position:static}.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:520px){.steps{grid-template-columns:minmax(0,1fr)}.two{grid-template-columns:minmax(0,1fr)}.ins{grid-template-columns:1fr 1fr}.ins>:first-child{grid-column:1/-1}}
+@media (prefers-reduced-motion:no-preference){.btn,.add,.x,.theme{transition:border-color .15s,color .15s,filter .15s}.step{transition:border-color .2s}}
+</style>
+
+</head><body style="margin:0">
+<div class="wrap">
+  <header class="head">
+    <div><h1 id="ttl"><img class="logo" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMjUgOTAiIHdpZHRoPSIyMjUiIGhlaWdodD0iOTAiIHJvbGU9ImltZyIgYXJpYS1sYWJlbD0iUGFsaWVybyI+CiAgPHRpdGxlPlBhbGllcm88L3RpdGxlPgogIDxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDEwLCAxMCkiPgogICAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjcwIiBoZWlnaHQ9IjcwIiByeD0iMTgiIGZpbGw9IiMxMjE2M0IiLz4KICAgIDxyZWN0IHg9IjE0IiB5PSI0NiIgd2lkdGg9IjEyIiBoZWlnaHQ9IjEyIiByeD0iMiIgZmlsbD0iIzMzNDdEQiIvPgogICAgPHJlY3QgeD0iMjkiIHk9IjMzIiB3aWR0aD0iMTIiIGhlaWdodD0iMjUiIHJ4PSIyIiBmaWxsPSIjNUU2NDg2Ii8+CiAgICA8cmVjdCB4PSI0NCIgeT0iMjAiIHdpZHRoPSIxMiIgaGVpZ2h0PSIzOCIgcng9IjIiIGZpbGw9IiNFOEEwMkEiLz4KICA8L2c+CiAgPHBhdGggZD0iTTk4LjM3IDUySDEwMy43M1Y0My40NEgxMDguNDZDMTE0LjQ5IDQzLjQ0IDExNy45NiAzOS44NCAxMTcuOTYgMzQuNjVDMTE3Ljk2IDI5LjUgMTE0LjU0IDI1LjgxIDEwOC41OSAyNS44MUg5OC4zN1pNMTAzLjczIDM5LjEyVjMwLjI0SDEwNy41OEMxMTAuODcgMzAuMjQgMTEyLjQyIDMyLjAxIDExMi40MiAzNC42NUMxMTIuNDIgMzcuMjkgMTEwLjg3IDM5LjEyIDEwNy42IDM5LjEyWk0xMjUuOTggNTIuMzlDMTI4Ljg4IDUyLjM5IDEzMC43OCA1MS4xIDEzMS43MyA0OS4yOEgxMzEuOVY1MkgxMzYuOVYzOC43NkMxMzYuOSAzNCAxMzIuNzggMzIuMSAxMjguNTYgMzIuMUMxMjQuMTcgMzIuMSAxMjEuMDEgMzQuMDUgMTIwIDM3LjQ2TDEyNC44NCAzOC4yN0MxMjUuMjYgMzcuMDEgMTI2LjUxIDM2IDEyOC41NSAzNkMxMzAuNTIgMzYgMTMxLjYyIDM2Ljk1IDEzMS42MiAzOC42MlYzOC43MUMxMzEuNjIgMzkuOTkgMTMwLjIzIDQwLjEzIDEyNi44NiA0MC40N0MxMjIuOTkgNDAuODQgMTE5LjQ0IDQyLjEgMTE5LjQ0IDQ2LjVDMTE5LjQ0IDUwLjM4IDEyMi4yNCA1Mi4zOSAxMjUuOTggNTIuMzlaTTEyNy40NyA0OC42OEMxMjUuNzMgNDguNjggMTI0LjUgNDcuODkgMTI0LjUgNDYuMzZDMTI0LjUgNDQuNzggMTI1LjggNDQuMDIgMTI3Ljc2IDQzLjc0QzEyOC45MiA0My41OCAxMzEuMDEgNDMuMyAxMzEuNjYgNDIuODRWNDQuOTdDMTMxLjY2IDQ3LjA0IDEyOS45NCA0OC42OCAxMjcuNDcgNDguNjhaTTE0NS41OSAyNS44MUgxNDAuMzJWNTJIMTQ1LjU5Wk0xNDguOTkgNTJIMTU0LjI3VjMyLjM1SDE0OC45OVpNMTUxLjYzIDI5Ljc4QzE1My4yMSAyOS43OCAxNTQuNTMgMjguNTkgMTU0LjUzIDI3LjA3QzE1NC41MyAyNS41OCAxNTMuMjEgMjQuMzcgMTUxLjYzIDI0LjM3QzE1MC4wMyAyNC4zNyAxNDguNzMgMjUuNTggMTQ4LjczIDI3LjA3QzE0OC43MyAyOC41OSAxNTAuMDMgMjkuNzggMTUxLjYzIDI5Ljc4Wk0xNjYuNTUgNTIuMzlDMTcxLjEyIDUyLjM5IDE3NC4yNCA1MC4yNiAxNzUuMjEgNDYuOTlMMTcwLjQzIDQ2LjA5QzE2OS44NyA0Ny42MSAxNjguNDggNDguNDEgMTY2LjYzIDQ4LjQxQzE2My45OCA0OC40MSAxNjIuMTkgNDYuNzYgMTYyLjA2IDQzLjU0SDE3NS41MVY0Mi4wN0MxNzUuNTEgMzUuMzUgMTcxLjQxIDMyLjEgMTY2LjI4IDMyLjFDMTYwLjUzIDMyLjEgMTU2Ljg0IDM2LjIxIDE1Ni44NCA0Mi4yOEMxNTYuODQgNDguNDggMTYwLjUzIDUyLjM5IDE2Ni41NSA1Mi4zOVpNMTYyLjEgNDAuMjRDMTYyLjMxIDM3LjgxIDE2My44MiAzNi4wNyAxNjYuMzMgMzYuMDdDMTY4Ljc4IDM2LjA3IDE3MC4xNyAzNy42NyAxNzAuNDMgNDAuMjRaTTE3OC4wMyA1MkgxODMuMzFWNDAuODJDMTgzLjMxIDM4LjM4IDE4NS4wOCAzNi43MSAxODcuNTEgMzYuNzFDMTg4LjI4IDM2LjcxIDE4OS4zMiAzNi44MyAxODkuNzkgMzYuOTdWMzIuMjZDMTg5LjMyIDMyLjE1IDE4OC42MyAzMi4wOCAxODguMDkgMzIuMDhDMTg1Ljg3IDMyLjA4IDE4NC4wNiAzMy4zNSAxODMuMzQgMzUuNzhIMTgzLjEzVjMyLjM1SDE3OC4wM1pNMjAwLjQgNTIuMzlDMjA2LjMxIDUyLjM5IDIxMC4wMiA0OC4zMSAyMTAuMDIgNDIuMjZDMjEwLjAyIDM2LjE4IDIwNi4zMSAzMi4xIDIwMC40IDMyLjFDMTk0LjQ4IDMyLjEgMTkwLjc5IDM2LjE4IDE5MC43OSA0Mi4yNkMxOTAuNzkgNDguMzEgMTk0LjQ4IDUyLjM5IDIwMC40IDUyLjM5Wk0yMDAuNCA0OC4yNEMxOTcuNTkgNDguMjQgMTk2LjE3IDQ1LjY3IDE5Ni4xNyA0Mi4yNEMxOTYuMTcgMzguNzYgMTk3LjU5IDM2LjI1IDIwMC40IDM2LjI1QzIwMy4yMiAzNi4yNSAyMDQuNjYgMzguNzggMjA0LjY2IDQyLjI0QzIwNC42NiA0NS42NyAyMDMuMjIgNDguMjQgMjAwLjQgNDguMjRaIiBmaWxsPSIjMTIxNjNCIi8+Cjwvc3ZnPgo=" alt="Paliero" width="225" height="90"></h1><p class="sub">Calculateur de paliers de prêt</p></div>
+    <button class="theme" id="theme" type="button" aria-label="Changer de thème">Thème</button>
+  </header>
+
+  <div class="layout">
+    <aside class="aside">
+      <section class="card" aria-labelledby="h-pret">
+        <header><h2 id="h-pret">Le prêt</h2><button class="link" id="reset" type="button">Réinitialiser</button></header>
+        <div class="fields">
+          <div class="fld"><label for="montant">Montant à date d'effet</label><div class="box"><input class="in" id="montant" inputmode="decimal" autocomplete="off"><i>€</i></div></div>
+          <div class="fld"><label for="taux">Taux annuel nominal</label><div class="box"><input class="in" id="taux" inputmode="decimal" autocomplete="off"><i>%</i></div></div>
+          <div class="two">
+            <div class="fld"><label for="debloc">Déblocage <span style="font-weight:400">(facultatif)</span></label><input class="in" id="debloc" type="date"></div>
+            <div class="fld"><label for="date">1re échéance <span style="font-weight:400">(facultatif)</span></label><input class="in" id="date" type="date"></div>
+          </div>
+          <p class="hint" style="margin:-6px 0 0;font-size:12px">Avec les deux dates, les intérêts de la 1re échéance sont calculés au prorata des jours (réel/365). La date de 1re échéance affiche aussi les dates du tableau.</p>
+          <div class="two">
+            <div class="fld"><label for="cumul">Durées saisies</label><select class="in" id="cumul"><option value="0">Par palier</option><option value="1">Cumulées</option></select></div>
+            <div class="fld"><label for="arrondi">Arrondi</label><select class="in" id="arrondi"><option value="1">Au centime</option><option value="0">Aucun</option></select></div>
+          </div>
+        </div>
+      </section>
+      <section class="card" aria-labelledby="h-dur">
+        <header><h2 id="h-dur">Calculateur de durée</h2><button class="link" id="dReset" type="button">Réinitialiser</button></header>
+        <div class="fields">
+          <div class="two">
+            <div class="fld"><label for="d1">Date de départ</label><input class="in" id="d1" type="date"></div>
+            <div class="fld"><label for="d2">Date de fin</label><input class="in" id="d2" type="date"></div>
+          </div>
+          <div class="fld"><label for="dfreq">Périodicité des échéances</label><select class="in" id="dfreq"><option value="1" selected>Mensuelle</option><option value="3">Trimestrielle</option><option value="6">Semestrielle</option><option value="12">Annuelle</option></select></div>
+          <label class="chk" style="align-items:flex-start"><input type="checkbox" id="dincl" style="margin-top:2px"><span>Compter aussi le mois de départ (+1)<small style="display:block;color:var(--muted)">À cocher si la première échéance tombe le mois de la date de départ.</small></span></label>
+        </div>
+        <div id="dout" aria-live="polite"></div>
+        <div class="dfb" id="dfb" role="status"></div>
+      </section>
+      <section class="card" aria-labelledby="h-ck">
+        <header><h2 id="h-ck">Contrôles</h2><span id="status"></span></header>
+        <ul class="checks" id="checks"></ul>
+      </section>
+    </aside>
+
+    <div class="main">
+      <section class="card" aria-labelledby="h-pal">
+        <header>
+          <div><h2 id="h-pal">Les paliers</h2><p class="hint" id="phint">Saisissez la durée et le CRD visé à la fin de chaque palier : le montant du palier se calcule automatiquement. La dernière échéance de chaque palier est ajustée pour atteindre exactement le CRD visé.</p></div>
+          <div class="tools"><label class="chk"><input type="checkbox" id="adv"> Mensualité imposée</label><button class="btn" id="copyPal" type="button">Copier</button><button class="btn" id="clear" type="button">Réinitialiser</button></div>
+        </header>
+        <div class="scroll tp">
+          <table id="tpal" class="adv-off">
+            <thead><tr><th class="l">Palier</th><th class="in-h" id="h1">Durée cumulée (mois)</th><th class="in-h">CRD fin de période</th><th class="in-h advc">Mensualité imposée</th><th id="h2">Durée du palier</th><th class="res-h">Montant du palier</th><th>Dernière échéance</th><th>Montant moyen</th><th>CRD début</th><th class="l">Contrôle</th><th></th></tr></thead>
+            <tbody id="pbody"></tbody>
+          </table>
+        </div>
+        <p class="note">Les lignes s'ajoutent toutes seules. Au dernier palier, saisissez 0 (ou laissez vide) pour solder le prêt. Jusqu'à 25 paliers et 600 mois.</p>
+        <div class="toast" id="toast" role="status"></div>
+      </section>
+
+      
+      
+
+      <section class="card" aria-labelledby="h-am">
+        <header><h2 id="h-am">Tableau d'amortissement</h2>
+          <div style="display:flex;gap:10px;flex-wrap:wrap"><div class="seg" role="group" aria-label="Affichage"><button type="button" id="vm" aria-pressed="true">Par mois</button><button type="button" id="va" aria-pressed="false">Par année</button></div><button class="btn" id="copyAm" type="button">Copier</button></div>
+        </header>
+        <div class="scroll" id="amwrap"></div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<script>
+/* Moteur de calcul : paliers de prêt, logique bancaire.
+   - intérêt mensuel = CRD × taux / 12, arrondi au centime (demi supérieur) si "arrondi"
+   - mensualité du palier = arrondi du calcul financier (CRD début -> CRD visé)
+   - dernière échéance du palier ajustée pour atteindre exactement le CRD visé
+   - 1re échéance : intérêts au prorata des jours (réel/365) si p.jours1 est fourni */
+function isNum(x){ return typeof x==='number' && isFinite(x); }
+function compute(p){
+  const rows=p.rows, out={rows:[],schedule:[],valid:false};
+  const i = isNum(p.taux) ? (p.methode==='act' ? Math.pow(1+p.taux,1/12)-1 : p.taux/12) : null;
+  out.i=i;
+  const c2=(x)=>Math.floor(x*100+0.5+1e-7)/100;           // demi supérieur
+  const rd=(x)=> p.arrondi ? c2(x) : Math.round(x*1e10)/1e10;
+  const keep=(x)=> p.arrondi ? Math.round(x*100)/100 : Math.round(x*1e8)/1e8;
+  const baseOk = isNum(p.montant) && p.montant>0 && i!==null;
+  // 1) durées
+  let cum=0, prevOk=true;
+  const R=rows.map(r=>{
+    const o={dur:r.dur,crd:r.crd,mens:r.mens,F:null,G:null,H:null,msg:'',warn:false,I:null,P:null,Pl:null,Pm:null,K:null,L:null,M:null,mode:null,fin:false,sched:[]};
+    const any = r.dur!==null||r.crd!==null||r.mens!==null;
+    o.any=any;
+    if(!any){ prevOk=false; return o; }
+    if(r.dur===null){ o.msg='Durée manquante'; o.warn=true; prevOk=false; return o; }
+    const raw = p.cumul ? r.dur-cum : r.dur;
+    if(!prevOk){ o.msg='Ignoré : palier précédent absent ou invalide'; o.warn=true; return o; }
+    if(!(Number.isInteger(raw)&&raw>=1)){ o.msg='Durée invalide (entier ≥ 1)'; o.warn=true; prevOk=false; return o; }
+    o.F=raw; cum+=raw; o.G=cum; o.H=cum-raw+1; return o;
+  });
+  // 2) calcul séquentiel palier par palier (simulation mois par mois)
+  let prevK = baseOk ? p.montant : null, month=0;
+  R.forEach((o,k)=>{
+    if(o.F===null) return;
+    const nextEmpty = (k+1>=R.length) || R[k+1].F===null;
+    o.mode = o.crd!==null ? 'CRD' : (o.mens!==null ? 'MENS' : (nextEmpty ? 'SOLDE' : 'ERR'));
+    o.fin = nextEmpty && (o.mode==='SOLDE' || (o.mode==='CRD' && o.crd===0));
+    o.I = prevK;
+    if(o.mode==='ERR'){ o.msg='Renseignez un CRD visé ou une mensualité'; o.warn=true; prevK=null; return; }
+    if(o.I===null){ o.msg='En attente du palier précédent'; o.warn=true; prevK=null; return; }
+    const n=o.F, q=Math.pow(1+i,n), tgt=(o.mode==='CRD')?o.crd:(o.mode==='SOLDE'?0:null);
+    if(tgt!==null) o.P = rd(i===0 ? (o.I-tgt)/n : (o.I*q-tgt)*i/(q-1));
+    else o.P = o.mens;
+    // simulation
+    let crd=o.I, intSum=0, paySum=0;
+    for(let m=1;m<=n;m++){
+      month++;
+      const full = rd(crd*i);                       // intérêt d'un mois plein
+      let it=full, cap=o.P-full, pay=o.P;
+      if(month===1 && p.jours1){ it=rd(crd*p.taux*p.jours1/365); cap=o.P-full; pay=cap+it; }
+      if(m===n && tgt!==null){ pay=keep(crd+it-tgt); cap=pay-it; }       // dernière échéance ajustée
+      const end=keep(crd-cap);
+      o.sched.push({m:month,pal:k+1,D:crd,pay,it,cap,end,last:m===n});
+      intSum+=it; paySum+=pay; crd=end;
+    }
+    o.Pl=o.sched[n-1].pay; o.Pm=paySum/n;
+    o.K = tgt!==null ? tgt : crd;
+    o.L=intSum; o.M=o.I-o.K;
+    if(o.I<=0.005){ o.msg='Prêt déjà soldé avant ce palier'; o.warn=true; }
+    else if(o.P<=0){ o.msg='CRD visé supérieur au CRD de début'; o.warn=true; }
+    else if(o.K<-0.005){ o.msg='CRD négatif : mensualité trop élevée'; o.warn=true; }
+    else if(o.K>o.I+0.005){ o.msg='Amortissement négatif (mensualité inférieure aux intérêts)'; o.warn=true; }
+    else if(o.mode==='CRD') o.msg = o.mens!==null ? 'CRD visé (mensualité imposée ignorée)' : 'CRD visé → mensualité calculée';
+    else if(o.mode==='MENS') o.msg='Mensualité imposée → CRD calculé';
+    else o.msg='Solde à 0 en fin de palier';
+    prevK=o.K;
+  });
+  out.rows=R;
+  const F=R.filter(o=>o.F!==null), total=F.length?F[F.length-1].G:0;
+  out.total=total;
+  out.valid = baseOk && F.length>0 && F.every(o=>o.P!==null) && total<=600;
+  const lastRow = F[F.length-1];
+  if(out.valid){
+    F.forEach(o=>o.sched.forEach(s=>out.schedule.push(s)));
+    out.interets=out.schedule.reduce((s,x)=>s+x.it,0);
+    out.paye=out.schedule.reduce((s,x)=>s+x.pay,0);
+    out.derniere=out.schedule[total-1].pay;
+    out.crdFinal=out.schedule[total-1].end;
+  }
+  // contrôles
+  const nIn=R.filter(o=>o.any).length;
+  const C=[];
+  C.push({l:'Montant et taux valides',ok:baseOk||(isNum(p.montant)&&p.montant>0&&isNum(p.taux)&&p.taux>=0),d:'Montant > 0, taux ≥ 0'});
+  C.push({l:'Toutes les lignes saisies sont prises en compte',ok:nIn===F.length,d:'Pas de ligne vide au milieu, durées valides'});
+  C.push({l:'Aucune alerte sur les paliers',ok:!R.some(o=>o.warn),d:'Voir la colonne « Contrôle » du tableau des paliers'});
+  C.push({l:'Durée totale ≤ 600 mois',ok:total<=600,d:'Limite du tableau d\'amortissement'});
+  if(out.valid){
+    const ends=F.every(o=>Math.abs(o.sched[o.sched.length-1].end-o.K)<0.011);
+    const sumL=F.reduce((s,o)=>s+o.L,0);
+    C.push({l:'Tableau cohérent avec les paliers',ok:ends&&Math.abs(sumL-out.interets)<0.05,d:'CRD de fin de chaque palier atteint, intérêts identiques'});
+    C.push({l:'Prêt soldé en fin de dernier palier',ok:true,info:Math.abs(lastRow.K)<0.01?null:('CRD résiduel de '+lastRow.K.toFixed(2)),d:'Information, non bloquant'});
+  } else C.push({l:'Tableau cohérent avec les paliers',ok:false,d:'Calcul impossible tant que les erreurs ne sont pas corrigées'});
+  out.checks=C;
+  return out;
+}
+
+(function(){
+const $=id=>document.getElementById(id);
+const MAXP=25, KEY='paliers-calculateur-v3', MINR=8, TKEY='paliers-theme';
+const nf=d=>new Intl.NumberFormat('fr-FR',{minimumFractionDigits:d,maximumFractionDigits:d});
+const f2=nf(2), f0=nf(0), nb=s=>s.replace(/ /g,' ');
+const eur=x=>nb(f2.format(x))+' €', eur0=x=>nb(f0.format(x))+' €';
+const EX={montant:'300000',taux:'3,5',methode:'prop',debloc:'',date:'',cumul:'1',arrondi:'1',adv:false,rows:[['60','250000',''],['144','120000',''],['240','0','']]};
+const clone=o=>JSON.parse(JSON.stringify(o));
+let state=load()||clone(EX), view='m', last=null;
+pad();
+function load(){try{const s=localStorage.getItem(KEY);if(!s)return null;const o=JSON.parse(s);return o&&Array.isArray(o.rows)&&o.rows.length?o:null}catch(e){return null}}
+function filled(r){return r[0]!==''||r[1]!==''||r[2]!==''}
+function pad(){let m=-1;state.rows.forEach((r,i)=>{if(filled(r))m=i});const want=Math.min(MAXP,Math.max(MINR,m+3));while(state.rows.length<want)state.rows.push(['','','']);if(state.rows.some(r=>r[2]!==''))state.adv=true}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}}
+function parse(s){if(s==null)return null;s=String(s).replace(/[\s  ]/g,'').replace(',','.');if(s==='')return null;const n=Number(s);return isFinite(n)?n:null}
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* thème */
+function applyTheme(t){if(t)document.documentElement.setAttribute('data-theme',t);else document.documentElement.removeAttribute('data-theme');
+  const dark=document.documentElement.getAttribute('data-theme')==='dark'||(!t&&matchMedia('(prefers-color-scheme:dark)').matches);$('theme').textContent=dark?'Mode clair':'Mode sombre'}
+try{applyTheme(localStorage.getItem(TKEY))}catch(e){applyTheme(null)}
+$('theme').addEventListener('click',()=>{const cur=document.documentElement.getAttribute('data-theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');const n=cur==='dark'?'light':'dark';applyTheme(n);try{localStorage.setItem(TKEY,n)}catch(e){}});
+
+/* saisie */
+function jours1(){const a=/^(\d{4})-(\d{2})-(\d{2})$/.exec(state.debloc||''),b=/^(\d{4})-(\d{2})-(\d{2})$/.exec(state.date||'');if(!a||!b)return null;
+  const d1=Date.UTC(+a[1],+a[2]-1,+a[3]),d2=Date.UTC(+b[1],+b[2]-1,+b[3]);const j=Math.round((d2-d1)/864e5);if(j<=0)return null;
+  const mois=(+b[1]-+a[1])*12+(+b[2]-+a[2]); if(mois===1&&+a[3]===+b[3])return null; return j}
+function readParams(){const t=parse(state.taux);return{montant:parse(state.montant),taux:t===null?null:t/100,methode:'prop',jours1:jours1(),arrondi:state.arrondi==='1',cumul:state.cumul==='1',rows:state.rows.map(r=>({dur:parse(r[0]),crd:parse(r[1]),mens:parse(r[2])}))}}
+function bindTop(){for(const k of ['montant','taux','debloc','date','cumul','arrondi']){const el=$(k);el.value=state[k]||'';const h=()=>{state[k]=el.value;if(k==='cumul')heads();refresh()};el.addEventListener('input',h);el.addEventListener('change',h)}}
+function rowHTML(k,r){
+  const inp=(j,l,ph)=>`<td class="cin ${j===2?'advc':''}"><input class="in" id="s${k}-${j}" inputmode="decimal" autocomplete="off" data-r="${k}" data-j="${j}" aria-label="${l} du palier ${k+1}" placeholder="${ph}" value="${esc(r[j])}"></td>`;
+  return `<td class="n"><span class="badge">${k+1}</span></td>${inp(0,'Durée','mois')}${inp(1,'CRD fin de période','€')}${inp(2,'Mensualité imposée','€')}
+    <td class="c" data-c="dur2"></td><td class="c pay" data-c="P"></td><td class="c" data-c="Pl"></td><td class="c" data-c="Pm"></td><td class="c" data-c="I"></td><td class="msg" data-c="msg"></td>
+    <td><button class="x" type="button" data-del="${k}" aria-label="Supprimer le palier ${k+1}">×</button></td>`;
+}
+function buildSteps(){
+  const tb=$('pbody'); tb.innerHTML='';
+  state.rows.forEach((r,k)=>{const tr=document.createElement('tr');tr.innerHTML=rowHTML(k,r);tb.appendChild(tr)});
+  $('adv').checked=!!state.adv; $('tpal').classList.toggle('adv-off',!state.adv); heads();
+}
+function growRows(){ // ajoute des lignes vides à mesure que l'on remplit, sans toucher aux lignes existantes
+  const before=state.rows.length; pad();
+  for(let k=before;k<state.rows.length;k++){const tr=document.createElement('tr');tr.innerHTML=rowHTML(k,state.rows[k]);$('pbody').appendChild(tr)}
+}
+function heads(){const c=state.cumul==='1';$('h1').textContent=c?'Durée cumulée (mois)':'Durée du palier (mois)';$('h2').textContent=c?'Durée du palier':'Durée cumulée'}
+$('pbody').addEventListener('input',e=>{const t=e.target;if(t.dataset.r===undefined)return;state.rows[+t.dataset.r][+t.dataset.j]=t.value;growRows();refresh()});
+$('pbody').addEventListener('click',e=>{const d=e.target.closest('[data-del]');if(!d)return;state.rows.splice(+d.dataset.del,1);pad();buildSteps();refresh()});
+$('adv').addEventListener('change',()=>{state.adv=$('adv').checked;$('tpal').classList.toggle('adv-off',!state.adv);save()});
+$('clear').addEventListener('click',()=>{state.rows=[];state.adv=false;pad();buildSteps();refresh();const f=$('s0-0');f&&f.focus()});
+$('reset').addEventListener('click',()=>{Object.assign(state,{montant:'',taux:'',debloc:'',date:'',cumul:'1',arrondi:'1'});for(const k of ['montant','taux','debloc','date','cumul','arrondi'])$(k).value=state[k];heads();refresh();$('montant').focus()});
+
+/* sortie */
+function refresh(){
+  const p=readParams(), R=compute(p); last={p,R}; save();
+  const trs=$('pbody').rows;
+  R.rows.forEach((o,k)=>{
+    const tr=trs[k]; if(!tr)return; const set=(n,v)=>{tr.querySelector(`[data-c="${n}"]`).textContent=v};
+    set('dur2',o.F===null?'':String(p.cumul?o.F:o.G)); set('P',o.P===null?'':eur(o.P)); set('Pl',o.Pl===null?'':eur(o.Pl)); set('Pm',o.Pm===null?'':eur(o.Pm));
+    set('I',o.I===null?'':eur0(o.I));
+    const m=tr.querySelector('[data-c="msg"]'); m.textContent=!o.any?'':(o.warn?'⚠ '+o.msg:'✔'); m.title=o.any?o.msg:''; m.className='msg'+(o.warn?' warn':' okc');
+    tr.classList.toggle('blank',!o.any);
+  });
+  renderChecks(R); renderAm(R);
+}
+function renderChecks(R){
+  const bad=R.checks.filter(c=>!c.ok).length;
+  $('status').innerHTML=bad===0?'<span class="pill ok">✔ Tout est OK</span>':`<span class="pill bad">⚠ ${bad} à vérifier</span>`;
+  $('checks').innerHTML=R.checks.map(c=>{const inf=c.ok&&c.info,cls=inf?'inf':c.ok?'ok':'bad',mk=inf?'ℹ':c.ok?'✔':'⚠';
+    return `<li><span class="m ${cls}">${mk}</span><div>${c.l}${inf?' : '+c.info.replace('CRD résiduel de ','CRD résiduel de ')+' €':''}<small>${c.d}</small></div></li>`}).join('');
+}
+function startBase(){const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec($('date').value);return m?[+m[1],+m[2]-1,+m[3]]:null}
+function dateAt(base,n){const y=base[0],mo=base[1]+n,dim=new Date(y,mo+1,0).getDate();return new Date(y,mo,Math.min(base[2],dim))}
+function renderAm(R){
+  const w=$('amwrap');
+  if(!R.valid){w.innerHTML='<div class="empty">Le tableau apparaît dès que les paliers sont complets et valides.</div>';return}
+  const base=startBase(), df=new Intl.DateTimeFormat('fr-FR'), S=R.schedule, fix=x=>f2.format(Math.abs(x)<0.005?0:x);
+  let h='';
+  if(view==='m'){
+    h=`<table><thead><tr><th class="l">N°</th>${base?'<th class="l">Date</th>':''}<th>Palier</th><th>CRD début</th><th>Échéance</th><th>Intérêts</th><th>Capital</th><th>CRD fin</th></tr></thead><tbody>`;
+    for(const s of S)h+=`<tr class="${s.pal%2===0?'alt':''}${s.last?' end':''}"><td class="n">${s.m}</td>${base?`<td class="c l">${df.format(dateAt(base,s.m-1))}</td>`:''}<td class="c">${s.pal}</td><td class="c">${f2.format(s.D)}</td><td class="c">${f2.format(s.pay)}</td><td class="c">${f2.format(s.it)}</td><td class="c">${f2.format(s.cap)}</td><td class="c">${fix(s.end)}</td></tr>`;
+    const t=S.reduce((a,s)=>[a[0]+s.pay,a[1]+s.it,a[2]+s.cap],[0,0,0]);
+    h+=`<tr class="tot"><td class="n">Total</td>${base?'<td></td>':''}<td></td><td></td><td class="c">${f2.format(t[0])}</td><td class="c">${f2.format(t[1])}</td><td class="c">${f2.format(t[2])}</td><td></td></tr></tbody></table>`;
+  } else {
+    const g=new Map();
+    for(const s of S){const key=base?dateAt(base,s.m-1).getFullYear():Math.ceil(s.m/12);if(!g.has(key))g.set(key,{n:0,pay:0,it:0,cap:0,end:0,pals:new Set()});const o=g.get(key);o.n++;o.pay+=s.pay;o.it+=s.it;o.cap+=s.cap;o.end=s.end;o.pals.add(s.pal)}
+    h=`<table><thead><tr><th class="l">${base?'Année':'Année du prêt'}</th><th>Échéances</th><th>Palier(s)</th><th>Total versé</th><th>Intérêts</th><th>Capital</th><th>CRD fin</th></tr></thead><tbody>`;
+    for(const [k,o] of g)h+=`<tr><td class="n">${k}</td><td class="c">${o.n}</td><td class="c">${[...o.pals].join(', ')}</td><td class="c">${f2.format(o.pay)}</td><td class="c">${f2.format(o.it)}</td><td class="c">${f2.format(o.cap)}</td><td class="c">${fix(o.end)}</td></tr>`;
+    h+='</tbody></table>';
+  }
+  w.innerHTML=h;
+}
+$('vm').addEventListener('click',()=>{view='m';$('vm').setAttribute('aria-pressed','true');$('va').setAttribute('aria-pressed','false');last&&renderAm(last.R)});
+$('va').addEventListener('click',()=>{view='a';$('va').setAttribute('aria-pressed','true');$('vm').setAttribute('aria-pressed','false');last&&renderAm(last.R)});
+$('date').addEventListener('change',()=>last&&renderAm(last.R));
+
+/* copie */
+function copy(text,msg){
+  const done=()=>{$('toast').textContent=msg;setTimeout(()=>{$('toast').textContent=''},2600)};
+  const fb=()=>{const t=document.createElement('textarea');t.value=text;t.style.cssText='position:fixed;opacity:0';document.body.appendChild(t);t.select();try{document.execCommand('copy');done()}catch(e){}t.remove()};
+  try{navigator.clipboard.writeText(text).then(done,fb)}catch(e){fb()}
+}
+const tsv=x=>x.toFixed(2).replace('.',',');
+$('copyPal').addEventListener('click',()=>{if(!last)return;const L=['Palier\tDu mois\tAu mois\tCRD début\tMensualité\tDernière échéance\tMontant moyen\tCRD fin\tIntérêts\tCapital'];
+  last.R.rows.forEach((o,k)=>{if(o.P!==null)L.push([k+1,o.H,o.G,tsv(o.I),tsv(o.P),tsv(o.Pl),tsv(o.Pm),tsv(o.K),tsv(o.L),tsv(o.M)].join('\t'))});copy(L.join('\n'),'Récapitulatif copié. Collez-le dans Excel ou Sheets.')});
+$('copyAm').addEventListener('click',()=>{if(!last||!last.R.valid)return;const L=['N°\tPalier\tCRD début\tÉchéance\tIntérêts\tCapital\tCRD fin'];
+  last.R.schedule.forEach(s=>L.push([s.m,s.pal,tsv(s.D),tsv(s.pay),tsv(s.it),tsv(s.cap),tsv(Math.max(s.end,0))].join('\t')));copy(L.join('\n'),'Tableau copié. Collez-le dans Excel ou Sheets.')});
+
+bindTop(); buildSteps(); refresh();
+/* calculateur de durée */
+(function(){
+  const d1=$('d1'),d2=$('d2'),fq=$('dfreq'),inc=$('dincl'),out=$('dout'),fb=$('dfb');let lastN=null;
+  const pad2=n=>String(n).padStart(2,'0'), iso=d=>d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate());
+  const dp=v=>{if(!v)return null;const p=v.split('-');return p.length===3?{y:+p[0],m:+p[1],d:+p[2]}:null};
+  const frd=o=>pad2(o.d)+'/'+pad2(o.m)+'/'+o.y, pl=(n,s,p)=>n+' '+(Math.abs(n)>1?p:s);
+  function defaults(){const n=new Date();d1.value=iso(n);d2.value=iso(new Date(n.getFullYear()+5,n.getMonth(),n.getDate()));fq.value='1';inc.checked=false}
+  function render(){
+    const a=dp(d1.value),b=dp(d2.value);
+    lastN=null;fb.textContent='';fb.className='dfb';
+    if(!a||!b){out.innerHTML='<p class="dnote">Renseignez les deux dates pour afficher le résultat.</p>';return}
+    const step=+fq.value, months=(b.y-a.y)*12+b.m-a.m+(inc.checked?1:0);
+    if(months<0||(b.y*10000+b.m*100+b.d)<(a.y*10000+a.m*100+a.d)){out.innerHTML='<div class="derr">La date de fin est antérieure à la date de départ. Vérifiez les deux dates.</div>';return}
+    const n=Math.floor(months/step), rest=months-n*step, years=Math.floor(months/12), rm=months%12;
+    const dur=years>0?pl(years,'an','ans')+(rm?' et '+pl(rm,'mois','mois'):''):pl(months,'mois','mois');
+    let h=`<div class="dres"><span class="big">${n}</span><span class="unit">${n>1?'échéances':'échéance'}</span><p>Du ${frd(a)} au ${frd(b)} : ${pl(months,'mois','mois')} (${dur})</p></div>`;
+    if(rest!==0)h+=`<p class="dnote">La durée ne tombe pas juste : il reste ${pl(rest,'mois','mois')} après la dernière échéance ${step===3?'trimestrielle':step===6?'semestrielle':'annuelle'}. Le nombre est arrondi à l'entier inférieur.</p>`;
+    const plein=(b.y-a.y)*12+b.m-a.m-(b.d<a.d?1:0);
+    if(!inc.checked&&plein!==months)h+=`<p class="dnote">En comptant uniquement les mois entiers révolus (jours inclus), la durée serait de ${pl(plein,'mois','mois')}.</p>`;
+    if(n>=1){lastN=n;h+=`<button class="btn p dapply" id="dApply" type="button">Reporter ${n} dans les paliers</button>`}
+    out.innerHTML=h;
+  }
+  function say(m,err){fb.textContent=m;fb.className='dfb'+(err?' err':'')}
+  out.addEventListener('click',e=>{
+    if(!e.target.closest('#dApply')||lastN===null)return;
+    let idx=-1;state.rows.forEach((r,i)=>{if(filled(r))idx=i});if(idx<0)idx=0;
+    let val=lastN;
+    if(state.cumul==='1'){const pv=idx>0?parse(state.rows[idx-1][0]):null;if(pv!==null&&lastN<=pv){say(`${lastN} mois, c'est moins que le palier précédent (${pv} mois cumulés).`,true);return}}
+    else{let s=0;for(let i=0;i<idx;i++){const d=parse(state.rows[i][0]);if(d!==null)s+=d}val=lastN-s;if(val<1){say(`Les paliers précédents totalisent déjà ${s} mois.`,true);return}}
+    state.rows[idx][0]=String(val);const inp=$('s'+idx+'-0');if(inp)inp.value=String(val);
+    growRows();refresh();
+    say(state.cumul==='1'?`Palier ${idx+1} : durée cumulée portée à ${val} mois.`:`Palier ${idx+1} : durée portée à ${val} mois (total ${lastN}).`);
+    const f=$('s'+idx+'-1');if(f)f.focus();
+  });
+  [d1,d2,fq,inc].forEach(el=>{el.addEventListener('input',render);el.addEventListener('change',render)});
+  $('dReset').addEventListener('click',()=>{defaults();render()});
+  defaults();render();
+})();
+
+})();
+</script>
+
+</body></html>
